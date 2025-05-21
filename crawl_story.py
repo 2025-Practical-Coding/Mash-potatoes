@@ -43,9 +43,23 @@ def dict_champions_data(champ_data):
         "story": origin_story
     }
 
-'''
+#데이터 출력 함수
 def print_data(region_kor, champions_metaData):
-'''
+    # 데이터가 없을 경우 오류 메시지
+    if not champions_metaData:
+        print(f"[{region_kor}] 데이터 없음")
+    else:
+        print(f"[{region_kor}] 지역 챔피언 목록")
+        i = 1
+        for champ_data in champions_metaData:
+            champion = dict_champions_data(champ_data)
+            print(f"{i}. {champion['name']} [{champion['slug']}]")
+            print("    별명:", champion['subtitle'])
+            print("    스토리:", champion['story'])
+            print("-"*100)
+            i += 1
+
+
 if __name__ == "__main__":
     # 한글 지역이름 : 영문 slug
     regions = {
