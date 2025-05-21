@@ -1,9 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
 
-'''
+# 설정한 지역마다 챔피언과 해당 데이터 전체 긁어 오는 함수
 def get_champions_metaData(region_en):
-    
+    URL = f"https://universe-meeps.leagueoflegends.com/v1/ko_kr/factions/{region_en}/index.json"
+    result = requests.get(URL)
+    data = result.json()
+    # 'associated-champions'라는 키에 챔피언 목록이 들어 있음
+    return data.get("associated-champions", [])
+
+'''
 def dict_champions_data(champ_data):
 
 def print_data(region_kor, champions_metaData):
