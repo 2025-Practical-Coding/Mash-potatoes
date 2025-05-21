@@ -9,9 +9,41 @@ def get_champions_metaData(region_en):
     # 'associated-champions'라는 키에 챔피언 목록이 들어 있음
     return data.get("associated-champions", [])
 
-'''
+#단일 챔피언 dict로 만드는 함수
 def dict_champions_data(champ_data):
+    # 이름
+    if "name" in champ_data:
+        name = champ_data["name"]
+    else:
+        name = ""
 
+    # slug (영문 명)
+    if "slug" in champ_data:
+        slug = champ_data["slug"]
+    else:
+        slug = ""
+
+    # 별명
+    if "subtitle" in champ_data:
+        subtitle = champ_data["subtitle"]
+    else:
+        subtitle = ""
+
+    # 스토리 (일단 일부만)
+    if "biography" in champ_data and "full" in champ_data["biography"]:
+        story = champ_data["biography"]["full"][:300]
+        soup = BeautifulSoup(story, 'html.parser')
+        origin_story = ' '.join(c for c in soup.strings)
+    else:
+        origin_story = ""
+    return {
+        "name": name,
+        "slug": slug,
+        "subtitle": subtitle,
+        "story": origin_story
+    }
+
+'''
 def print_data(region_kor, champions_metaData):
 '''
 if __name__ == "__main__":
