@@ -6,10 +6,30 @@ import json
 # 설정한 지역마다 챔피언과 해당 데이터 전체 긁어 오는 함수
 def get_champions_metaData(region_en):
     URL = f"https://universe-meeps.leagueoflegends.com/v1/ko_kr/factions/{region_en}/index.json"
-    result = requests.get(URL)
-    data = result.json()
+    # 예외처리 부분
+    try:
+        result = requests.get(URL, timeout = 10) #10초 제한
+        result.raise_for_status() 
+        data = result.json()
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP 에러 {region_en}: {e}")
+        return []
+    except requests.exceptions.ConnectionError as e:
+        print(f"Conn 에러 {region_en}: {e}")
+        return []
+    except requests.exceptions.Timeout as e:
+        print(f"제한시간초과 에러 {region_en}: {e}")
+        return []
+    except ValueError as e:
+        print(f"Json 파싱 에러 {region_en}: {e}")
+        return []
+    except Exception as e:
+        print(f"에러 [not-find] {region_en}: {e}")
+        return []
+    
     # 'associated-champions'라는 키에 챔피언 목록이 들어 있음
     return data.get("associated-champions", [])
+
 
 #단일 챔피언 dict로 만드는 함수
 def dict_champions_data(champ_data):
@@ -85,7 +105,14 @@ if __name__ == "__main__":
 
         #저장
         champion_list = []
+        un_dupli_slug_set = set()
         for champ_data in champions_metaData:
+            #중복 저장 방지 코드
+            slug = champ_data.get("slug", "")
+            if slug in un_dupli_slug_set:
+                continue
+            un_dupli_slug_set.add(slug)
+            
             champion = dict_champions_data(champ_data)
             champion_list.append(champion)
         result_data[region_kor] = champion_list
