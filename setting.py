@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 # load_dotenv()
 # client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-#123
 # resp = client.chat.completions.create(
 #     model="gpt-3.5-turbo",              
 #     messages=[{"role": "user", "content": "연동 테스트"}],
