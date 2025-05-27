@@ -39,7 +39,7 @@ def get_prompt(gs: GameState, character: Character, user_input: str) -> list[dic
         f"당신은 게임 캐릭터 {character.name}({character.subtitle})입니다.\n"
         f"스토리: {character.story}\n\n"
         "유저와 몰입하여 대화하세요.\n"
-        "응답에는 반드시 다음 JSON 형식으로 출력하세요:\n"
+        "아래 **반드시** JSON 코드블록(Triple backticks)으로만 응답하세요:\n"
         "```json\n"
         "{\n"
         "  \"reply\": \"<대화 내용>\",\n"
@@ -77,18 +77,26 @@ def chat_with_character(gs: GameState, slug: str, user_input: str) -> dict:
     text = resp.choices[0].message.content.strip()
 
     # JSON 블록 추출
-    # match = re.search(r'```json\s*([\s\S]*?)\s*```', text)
-    # json_str = match.group(1) if match else re.search(r'{[\s\S]*}', text).group(0)
-
     match = re.search(r'```json\s*([\s\S]*?)\s*```', text)
     if match:
         json_str = match.group(1)
     else:
         fallback = re.search(r'\{[\s\S]*\}', text)
-        if not fallback:
-            raise ValueError(f"LLM 응답에 JSON이 없습니다:\n{text}")
-        json_str = fallback.group(0)
-
+        if fallback:
+            json_str = fallback.group(0)
+        else : 
+            print("json parsing error")
+            return {
+                "region": gs.current_region.name,
+                "character": {"slug": character.slug, "name": character.name, "subtitle": character.subtitle},
+                "user_input": user_input,
+                "reply": text,               # LLM이 보낸 텍스트 전부
+                "delta": 0,                  # 변화량 0 으로 처리
+                "narration": "",             # 별도 내러티브 없음
+                "total_affinity": character.affinity,
+                "conv_count": gs.conv_counts[slug],
+                "conv_limit": gs.conv_limit
+            }
 
     data = json.loads(json_str)
     reply = data.get("reply", "")
