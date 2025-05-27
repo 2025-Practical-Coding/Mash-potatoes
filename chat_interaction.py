@@ -77,8 +77,18 @@ def chat_with_character(gs: GameState, slug: str, user_input: str) -> dict:
     text = resp.choices[0].message.content.strip()
 
     # JSON 블록 추출
+    # match = re.search(r'```json\s*([\s\S]*?)\s*```', text)
+    # json_str = match.group(1) if match else re.search(r'{[\s\S]*}', text).group(0)
+
     match = re.search(r'```json\s*([\s\S]*?)\s*```', text)
-    json_str = match.group(1) if match else re.search(r'{[\s\S]*}', text).group(0)
+    if match:
+        json_str = match.group(1)
+    else:
+        fallback = re.search(r'\{[\s\S]*\}', text)
+        if not fallback:
+            raise ValueError(f"LLM 응답에 JSON이 없습니다:\n{text}")
+        json_str = fallback.group(0)
+
 
     data = json.loads(json_str)
     reply = data.get("reply", "")

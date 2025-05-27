@@ -24,3 +24,7 @@ from dotenv import load_dotenv
 
 #나중에 Fast API실행
 #uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+#curl -X POST http://localhost:8000/chat \
+#     -H "Content-Type: application/json" \
+#     -d '{"slug":"illaoi","user_input":"안녕하세요,님!"}'
