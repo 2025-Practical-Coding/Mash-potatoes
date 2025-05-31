@@ -19,6 +19,8 @@ class ChatRequest(BaseModel):
     slug: str
     user_input: str
 
+#현재 상태를 출력하는 api
+#대화중인 캐릭터, 8회중 몇번 대화하고있는지 등 정보를 출력함
 @app.get("/state")
 def get_state():
     """지역, 상태 리턴"""
@@ -46,6 +48,9 @@ def get_state():
         "current_remaining": current_remaining
     }
 
+
+#첫 지역 방문했을때 캐릭터및 지역 랜덤으로 나오게끔 하는 api
+#지역당 2캐릭터, 캐리터당 7,8회 대화 했을 때 캐릭터와 지역이 다시 선택되게끔 수정해야함.
 @app.get("/opening")
 def get_opening_route():
     """지역 및 캐릭터 오프닝 출력"""
@@ -57,6 +62,8 @@ def get_opening_route():
             return {"opening": get_opening(GS, c), "slug": c.slug}
     raise HTTPException(status_code=400, detail="All characters in region completed. Call /next to advance.")
 
+# 사용자가 입력한 대화내용을 보내는 api
+# 남아있는 대화 횟수, 호감도, 호감도 상태 메세지 출력함
 @app.post("/chat")
 def post_chat(req: ChatRequest = Body(...)):
     """Handle a chat turn, return payload for frontend"""
@@ -74,6 +81,8 @@ def post_chat(req: ChatRequest = Body(...)):
         raise HTTPException(status_code=500, detail=str(e))
     return response
 
+# 7,8회로 1캐릭터와 대화가 종료되었을 때 다른 캐릭터와 대화하게끔 해야함.
+# 만약 2명 모두와 대화했을 경우에는 랜덤 지역으로 나오게끔
 @app.post("/next")
 def next_region():
     """Advance to next region after current completed"""
@@ -83,6 +92,8 @@ def next_region():
         return {"game_over": True, "result": GS.result()}
     return {"region": GS.current_region.name, "characters": [c.slug for c in GS.chosen]}
 
+
+# 게임 종료되었는지 확인하는 api
 @app.get("/result")
 def get_result():
     """Return final game result"""
