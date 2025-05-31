@@ -127,3 +127,20 @@ API 호출 흐름 정리
 3. if 횟수가 7,8회로 꽉 찼을 경우 
    다시 /opening 출력하게끔 해야함
 '''
+
+'''
+의존성 API 한번에 다운받을 수 있게끔 requirements.txt 생성
+가상환경 아래와 같은 명령어로 실행
+
+# macOS / Linux
+source venv/bin/activate
+
+# Windows (CMD)
+venv\Scripts\activate
+
+이 후 아래 명령어를 사용하면 의존성 한번에 주입 가능함.
+
+pip install -r requirements.txt 
+
+
+'''
