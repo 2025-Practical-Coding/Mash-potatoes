@@ -89,3 +89,30 @@ def get_result():
     if not GS.is_game_over():
         return {"game_over": False}
     return {"game_over": True, "result": GS.result()}
+
+
+'''
+7번 채웠을때 호감도에 따른 멘트, 만약 n넘을경우 동료가 되는 느낌으로
+안될 경우 떠나는 느낌으로
+
+지역 2번 캐릭터 넘어갈시 다른 지역으로 이동하기
+
+
+7번 단위로 넘어갈 때마다
+
+/next
+14번 /next
+지역 랜덤으로 다음거 선택하고, Opening 캐릭터도 랜덤 선택해서 return
+지역 랜덤 선택, 캐릭터 선택
+
+
+'''
+
+'''
+API 호출 흐름 정리
+1. /opening 시작 -> 랜덤 지역, 캐릭터 선택 첫 시작 멘트 출력됨
+2. /chat 으로 대화 시작 
+   -> return 정보로 대답 및 호감도, 변화 해설 출력, 총 8회중 현재 몇번 남았는지 출력됨
+3. if 횟수가 7,8회로 꽉 찼을 경우 
+   다시 /opening 출력하게끔 해야함
+'''

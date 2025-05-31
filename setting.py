@@ -23,7 +23,8 @@ from dotenv import load_dotenv
 #source venv/bin/activate  가상서버 실행, if Windows: venv\Scripts\activate
 
 #나중에 Fast API실행
-#uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+#uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
 
 #curl -X POST http://localhost:8000/chat \
 #     -H "Content-Type: application/json" \
