@@ -46,7 +46,9 @@ def get_prompt(gs: GameState, character: Character, user_input: str) -> list[dic
         "  \"delta\": <호감도 변화량: 정수>,\n"
         "  \"narration\": \"<호감도 변화와 상황 설명 텍스트>\"\n"
         "}```\n"
-        "delta 값은 -10에서 +10 사이의 정수, narration은 delta에 따른 서사적 설명을 포함하세요."
+        "delta 값은 -10에서 +10 사이의 정수, narration은 delta에 따른 서사적 설명을 포함하세요.\n"
+        f"{character.affinity}와 delta 값을 더한 결과가 {gs.affinity_threshold}보다 크다면 동료로 영입되어 주겠다는 응답을 구성하세요.\n"
+        f"이를 만족하지않고고 {gs.conv_counts}가 {gs.conv_limit}보다 크거나 같다면 스토리에 맞게 현재 대화에서 벗어나겠다는 응답을 하세요."
     )
     return [
         {"role": "system", "content": system_msg},

@@ -28,7 +28,7 @@ def get_state():
     if not region:
         raise HTTPException(status_code=404, detail="Game over")
     # 현재 대화 중인 캐릭터
-    current = next((c for c in GS.chosen if GS.conv_counts.get(c.slug, 0) < GS.conv_limit), None)
+    current = GS.current_character
     # 총 남은 대화 횟수 (모든 캐릭터)
     total_remaining = sum(GS.conv_limit - GS.conv_counts.get(c.slug, 0) for c in GS.chosen)
     # 현재 캐릭터 남은 횟수
@@ -58,11 +58,7 @@ def get_opening_route():
     region = GS.current_region
     if not region:
         raise HTTPException(status_code=404, detail="Game over")
-    for c in GS.chosen:
-        if GS.conv_counts.get(c.slug, 0) < GS.conv_limit:
-            GS.current_slug = c.slug
-            return {"opening": get_opening(GS, c), "slug": c.slug}
-    raise HTTPException(status_code=400, detail="All characters in region completed. Call /next to advance.")
+    return {"opening": get_opening(GS, GS.current_character), "slug": GS.current_character.slug}
 
 # 사용자가 입력한 대화내용을 보내는 api
 # 남아있는 대화 횟수, 호감도, 호감도 상태 메세지 출력함
@@ -73,13 +69,28 @@ def post_chat(req: ChatRequest = Body(...)):
     if not GS.current_region:
         raise HTTPException(status_code=404, detail="Game over")
     # find character
-    if req.slug != GS.current_slug:
+    if req.slug != GS.current_character.slug:
         raise HTTPException(status_code=400, detail="This is not a character you are currently talking to.")
     # perform chat
     try:
         response = chat_with_character(GS, req.slug, req.user_input)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    char = GS.current_character
+
+    conv_done = GS.conv_counts[char.slug] >= GS.conv_limit
+    affinity_done = char.affinity >= GS.affinity_threshold
+
+    if conv_done or affinity_done:
+        next_char = next((c for c in GS.chosen if c.slug != char.slug), None)
+        GS.region_conv_counts += 1
+        if GS.region_conv_counts < 2:
+            print(next_char)
+            GS.current_character = next_char
+        else:
+            if not GS.next_region():
+                return {"game_over": True, "result": GS.result()}
+    
     return response
 
 # 7,8회로 1캐릭터와 대화가 종료되었을 때 다른 캐릭터와 대화하게끔 해야함.

@@ -3,6 +3,8 @@ import random
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 
+from numpy import character
+
 @dataclass
 class Character:
     name: str
@@ -22,9 +24,10 @@ class GameState:
         self.regions = regions
         self.region_index = -1
         self.current_region: Optional[Region] = None
-        self.current_slug: Optional[str] = None
+        self.current_character: Optional[Character] = None
         self.chosen: List[Character] = []
         self.conv_counts: Dict[str, int] = {}
+        self.region_conv_counts = 0
         self.allies: List[Character] = []
         self.current_round = 1
         self.max_rounds = 80
@@ -47,6 +50,9 @@ class GameState:
         self.current_region = self.regions[self.region_index]
         self.chosen = random.sample(self.current_region.characters, 2)
         self.conv_counts = {c.slug: 0 for c in self.chosen}
+        self.region_conv_counts = 0
+        self.current_character = self.chosen[0]
+        print(self.current_character.name)
         return True
 
     def talk(self, slug: str, affinity_change: int = 0) -> None:
