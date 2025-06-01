@@ -38,7 +38,8 @@ def get_state():
         "current_character": {
             "slug": current.slug,
             "name": current.name,
-            "subtitle": current.subtitle
+            "subtitle": current.subtitle,
+            "affinity" : current.affinity
         } if current else None,
 
         #마을에 남아있는 대화횟수
@@ -59,6 +60,7 @@ def get_opening_route():
         raise HTTPException(status_code=404, detail="Game over")
     for c in GS.chosen:
         if GS.conv_counts.get(c.slug, 0) < GS.conv_limit:
+            GS.current_slug = c.slug
             return {"opening": get_opening(GS, c), "slug": c.slug}
     raise HTTPException(status_code=400, detail="All characters in region completed. Call /next to advance.")
 
@@ -71,9 +73,8 @@ def post_chat(req: ChatRequest = Body(...)):
     if not GS.current_region:
         raise HTTPException(status_code=404, detail="Game over")
     # find character
-    char = next((c for c in GS.chosen if c.slug == req.slug), None)
-    if not char:
-        raise HTTPException(status_code=400, detail="Character not in current region")
+    if req.slug != GS.current_slug:
+        raise HTTPException(status_code=400, detail="This is not a character you are currently talking to.")
     # perform chat
     try:
         response = chat_with_character(GS, req.slug, req.user_input)

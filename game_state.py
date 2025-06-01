@@ -22,6 +22,7 @@ class GameState:
         self.regions = regions
         self.region_index = -1
         self.current_region: Optional[Region] = None
+        self.current_slug: Optional[str] = None
         self.chosen: List[Character] = []
         self.conv_counts: Dict[str, int] = {}
         self.allies: List[Character] = []
