@@ -38,7 +38,7 @@ def get_prompt(gs: GameState, character: Character, user_input: str) -> list[dic
         opening + "\n\n"
         f"당신은 게임 캐릭터 {character.name}({character.subtitle})입니다.\n"
         f"스토리: {character.story}\n\n"
-        "유저와 몰입하여 대화하세요.\n"
+        "유저와 자신의 스토리에 맞춰 몰입하여 대화하세요.\n"
         "아래 **반드시** JSON 코드블록(Triple backticks)으로만 응답하세요:\n"
         "```json\n"
         "{\n"
@@ -48,7 +48,9 @@ def get_prompt(gs: GameState, character: Character, user_input: str) -> list[dic
         "}```\n"
         "delta 값은 -10에서 +10 사이의 정수, narration은 delta에 따른 서사적 설명을 포함하세요.\n"
         f"{character.affinity}와 delta 값을 더한 결과가 {gs.affinity_threshold}보다 크다면 동료로 영입되어 주겠다는 응답을 구성하세요.\n"
-        f"이를 만족하지않고고 {gs.conv_counts}가 {gs.conv_limit}보다 크거나 같다면 스토리에 맞게 현재 대화에서 벗어나겠다는 응답을 하세요."
+        f"{character.affinity}와 delta 값을 더한 결과가 {gs.affinity_threshold}보다 크지 않을 경우 충성을 맹세하거나 함께 하겠다는 표현을 사용하지 마세요요.\n"
+        f"이를 만족하지않고 {gs.conv_counts[character.slug]}가 {gs.conv_limit}보다 크거나 같다면 스토리에 맞게 현재 대화에서 벗어나겠다는 응답과 그에 맞는 상황 설명을 하세요."
+        f"{character.affinity}의 값을 기반으로 응답을 구성하세요."
     )
     return [
         {"role": "system", "content": system_msg},
