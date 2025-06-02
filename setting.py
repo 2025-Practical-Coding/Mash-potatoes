@@ -29,3 +29,8 @@ from dotenv import load_dotenv
 #curl -X POST http://localhost:8000/chat \
 #     -H "Content-Type: application/json" \
 #     -d '{"slug":"illaoi","user_input":"안녕하세요,님!"}'
+
+# window cmd에서 실행하는 경우
+#curl -X POST http://localhost:8000/chat \
+#     -H "Content-Type: application/json" \
+#     -d "{\"slug\":\"illaoi\",\"user_input\":\"안녕하세요,님!\"}""
