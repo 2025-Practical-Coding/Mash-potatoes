@@ -52,7 +52,6 @@ class GameState:
         self.conv_counts = {c.slug: 0 for c in self.chosen}
         self.region_conv_counts = 0
         self.current_character = self.chosen[0]
-        print(self.current_character.name)
         return True
 
     def talk(self, slug: str, affinity_change: int = 0) -> None:
@@ -61,6 +60,8 @@ class GameState:
         if self.conv_counts[slug] >= self.conv_limit:
             return
         self.conv_counts[slug] += 1
+        if self.conv_counts[slug] >= self.conv_limit:
+            self.region_conv_counts += 1
         char = next(c for c in self.chosen if c.slug == slug)
         char.affinity += affinity_change
         if char.affinity >= self.affinity_threshold and not char.is_ally:
@@ -69,7 +70,7 @@ class GameState:
         self.current_round += 1
 
     def is_region_complete(self) -> bool:
-        return all(count >= self.conv_limit for count in self.conv_counts.values())
+        return self.region_conv_counts >= 2
 
     def is_game_over(self) -> bool:
         return self.current_round > self.max_rounds or self.current_region is None

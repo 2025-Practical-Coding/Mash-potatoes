@@ -4,7 +4,7 @@ import random
 import os
 from dotenv import load_dotenv
 from game_state import GameState, Character, Region
-from chat_interaction import chat_with_character, get_opening
+from chat_interaction import chat_with_character, get_opening, say_good_bye
 
 load_dotenv()
 
@@ -82,27 +82,27 @@ def post_chat(req: ChatRequest = Body(...)):
     affinity_done = char.affinity >= GS.affinity_threshold
 
     if conv_done or affinity_done:
+        response_2 = say_good_bye(GS, GS.current_character)
         next_char = next((c for c in GS.chosen if c.slug != char.slug), None)
-        GS.region_conv_counts += 1
-        if GS.region_conv_counts < 2:
-            print(next_char)
+        if not GS.is_region_complete():
             GS.current_character = next_char
         else:
             if not GS.next_region():
                 return {"game_over": True, "result": GS.result()}
-    
+        return [response, response_2]
     return response
 
+# 로직 변경으로 chat과 결합합
 # 7,8회로 1캐릭터와 대화가 종료되었을 때 다른 캐릭터와 대화하게끔 해야함.
 # 만약 2명 모두와 대화했을 경우에는 랜덤 지역으로 나오게끔
-@app.post("/next")
-def next_region():
-    """Advance to next region after current completed"""
-    if not GS.is_region_complete():
-        raise HTTPException(status_code=400, detail="Current region not complete")
-    if not GS.next_region():
-        return {"game_over": True, "result": GS.result()}
-    return {"region": GS.current_region.name, "characters": [c.slug for c in GS.chosen]}
+# @app.post("/next")
+# def next_region():
+#     """Advance to next region after current completed"""
+#     if not GS.is_region_complete():
+#         raise HTTPException(status_code=400, detail="Current region not complete")
+#     if not GS.next_region():
+#         return {"game_over": True, "result": GS.result()}
+#     return {"region": GS.current_region.name, "characters": [c.slug for c in GS.chosen]}
 
 
 # 게임 종료되었는지 확인하는 api
@@ -149,6 +149,8 @@ source venv/bin/activate
 
 # Windows (CMD)
 venv\Scripts\activate
+
+deactivate로 venv 종료
 
 이 후 아래 명령어를 사용하면 의존성 한번에 주입 가능함.
 

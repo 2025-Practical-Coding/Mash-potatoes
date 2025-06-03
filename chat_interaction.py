@@ -33,12 +33,16 @@ def get_prompt(gs: GameState, character: Character, user_input: str) -> list[dic
         f"{region} 지역에서 {character.name}({character.subtitle})과 마주쳤습니다. "
         f"{first_sentence}. 대화를 시작하세요."
     )
-    
+    cur_conv = gs.conv_counts[character.slug] + 1
+    is_over = cur_conv >= gs.conv_limit
     system_msg = (
         opening + "\n\n"
         f"당신은 게임 캐릭터 {character.name}({character.subtitle})입니다.\n"
         f"스토리: {character.story}\n\n"
         "유저와 자신의 스토리에 맞춰 몰입하여 대화하세요.\n"
+        f"{character.affinity}가 유저에 대한 당신의 호감도 입니다.\n"
+        "호감도가 높다면 함께하는 것에 고민하고, 낮다면 함께하지 않겠다고고 대응하세요.\n"
+        "긍정적이라도 함께하겠다는 확답은 절대로 하면 안됩니다.\n"
         "아래 **반드시** JSON 코드블록(Triple backticks)으로만 응답하세요:\n"
         "```json\n"
         "{\n"
@@ -46,16 +50,85 @@ def get_prompt(gs: GameState, character: Character, user_input: str) -> list[dic
         "  \"delta\": <호감도 변화량: 정수>,\n"
         "  \"narration\": \"<호감도 변화와 상황 설명 텍스트>\"\n"
         "}```\n"
-        "delta 값은 -10에서 +10 사이의 정수, narration은 delta에 따른 서사적 설명을 포함하세요.\n"
-        f"{character.affinity}와 delta 값을 더한 결과가 {gs.affinity_threshold}보다 크다면 동료로 영입되어 주겠다는 응답을 구성하세요.\n"
-        f"{character.affinity}와 delta 값을 더한 결과가 {gs.affinity_threshold}보다 크지 않을 경우 충성을 맹세하거나 함께 하겠다는 표현을 사용하지 마세요요.\n"
-        f"이를 만족하지않고 {gs.conv_counts[character.slug]}가 {gs.conv_limit}보다 크거나 같다면 스토리에 맞게 현재 대화에서 벗어나겠다는 응답과 그에 맞는 상황 설명을 하세요."
-        f"{character.affinity}의 값을 기반으로 응답을 구성하세요."
+        "delta 값은 -10에서 10사이의 정수, narration은 delta에 따른 서사적 설명을 포함하세요.\n"
     )
     return [
         {"role": "system", "content": system_msg},
         {"role": "user",   "content": user_input}
     ]
+
+def say_good_bye(gs: GameState, character: Character) -> list[dict]:
+    """
+    대화가 끝났을 때 응답 생성성
+    """
+    if character.affinity >= gs.affinity_threshold:
+        system_msg = (
+            f"당신은 게임 캐릭터 {character.name}({character.subtitle})입니다.\n"
+            f"스토리: {character.story}\n\n"
+            "당신은 이제 유저와 대화를 마무리하려 합니다.\n"
+            "반드시 유저가 가는 길에 함께 하겠다는 응답을 스토리를 기반으로 구성하세요.\n"
+            "아래 **반드시** JSON 코드블록(Triple backticks)으로만 응답하세요:\n"
+            "```json\n"
+            "{\n"
+            "  \"reply\": \"<대화 내용>\",\n"
+            "  \"narration\": \"<상황 설명 텍스트>\"\n"
+            "}```\n"
+        )
+    else:
+        system_msg = (
+            f"당신은 게임 캐릭터 {character.name}({character.subtitle})입니다.\n"
+            f"스토리: {character.story}\n\n"
+            "당신은 이제 유저와 대화를 마무리하려 합니다.\n"
+            "유저가 가는 길에 함께하지 않않겠다는 응답을 스토리를 기반으로 구성하세요.\n"
+            "아래 **반드시** JSON 코드블록(Triple backticks)으로만 응답하세요:\n"
+            "```json\n"
+            "{\n"
+            "  \"reply\": \"<대화 내용>\",\n"
+            "  \"narration\": \"<상황 설명 텍스트>\"\n"
+            "}```\n"
+        )
+    
+    resp = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+        {"role": "system", "content": system_msg}
+        ],
+        max_tokens=350
+    )
+    text = resp.choices[0].message.content.strip()
+
+    match = re.search(r'```json\s*([\s\S]*?)\s*```', text)
+    if match:
+        json_str = match.group(1)
+    else:
+        fallback = re.search(r'\{[\s\S]*\}', text)
+        if fallback:
+            json_str = fallback.group(0)
+        else : 
+            print("json parsing error")
+            return {
+                "region": gs.current_region.name,
+                "character": {"slug": character.slug, "name": character.name, "subtitle": character.subtitle},
+                "reply": text,               # LLM이 보낸 텍스트 전부
+                "narration": "",             # 별도 내러티브 없음
+                "total_affinity": character.affinity,
+                "conv_count": gs.conv_counts[character.slug],
+                "conv_limit": gs.conv_limit
+            }
+        
+    data = json.loads(json_str)
+    reply = data.get("reply", "")
+    narration = data.get("narration", "")
+
+    return {
+        "region": gs.current_region.name,
+        "character": {"slug": character.slug, "name": character.name, "subtitle": character.subtitle},
+        "reply": reply,               # LLM이 보낸 텍스트 전부
+        "narration": narration,             # 별도 내러티브 없음
+        "total_affinity": character.affinity,
+        "conv_count": gs.conv_counts[character.slug],
+        "conv_limit": gs.conv_limit
+    }
 
 # def chat_with_character(gs: GameState, slug: str, user_input: str, model: str = "gpt-3.5-turbo") -> tuple[str,int,str]:
 def chat_with_character(gs: GameState, slug: str, user_input: str) -> dict:
