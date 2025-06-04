@@ -1,18 +1,15 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
+        google()
         gradlePluginPortal()
     }
+    plugins {
+        // Kotlin Compose Plugin 명시
+        id("org.jetbrains.kotlin.plugin.compose") version "1.5.11"
+    }
 }
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
