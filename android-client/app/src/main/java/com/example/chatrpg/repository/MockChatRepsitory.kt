@@ -17,14 +17,23 @@ class MockChatRepository : ChatRepository {
 
     private var currentChar = characters.random()
 
-    override suspend fun getOpening(): OpeningResponse {
+    override suspend fun getOpening(): ChatResponse {
         delay(200)
         currentChar = characters.random()
         affinity = 0
         count = 0
-        return OpeningResponse(
-            opening = "공허 지역에서 ${currentChar.name}(${currentChar.subtitle})과 마주쳤습니다. 대화를 시작하세요.",
-            slug = currentChar.slug
+        val replyText = "공허 지역에서 ${currentChar.name}(${currentChar.subtitle})과 마주쳤습니다. 대화를 시작하세요."
+        val narration = "모험을 시작해 보세요."
+        return ChatResponse(
+            region = "공허",
+            character = currentChar,
+            user_input = "",
+            reply = replyText,
+            delta = 0,
+            narration = narration,
+            total_affinity = affinity,
+            conv_count = count,
+            conv_limit = limit
         )
     }
 
@@ -58,30 +67,49 @@ class MockChatRepository : ChatRepository {
         )
     }
 
-    override suspend fun getState(): StateResponse {
+    override suspend fun getState(): ChatResponse {
         delay(100)
-        return StateResponse(
+        return ChatResponse(
             region = "공허",
-            current_character = currentChar,
-            total_remaining = limit - count,
-            current_remaining = limit - count
+            character = currentChar,
+            user_input = "",
+            reply = "현재 상태를 확인하세요.",
+            delta = 0,
+            narration = "모험을 진행 중입니다.",
+            total_affinity = affinity,
+            conv_count = count,
+            conv_limit = limit
         )
     }
 
-    override suspend fun nextRegion(): NextResponse {
+    override suspend fun nextRegion(): ChatResponse {
         delay(100)
-        return NextResponse(
-            game_over = false,
+        return ChatResponse(
             region = "공허",
-            characters = characters.map { it.slug }
+            character = currentChar,
+            user_input = "",
+            reply = "다음 지역으로 이동합니다.",
+            delta = 0,
+            narration = "다음 지역으로 가는 길을 안내합니다.",
+            total_affinity = affinity,
+            conv_count = count,
+            conv_limit = limit
         )
     }
 
-    override suspend fun getResult(): NextResponse {
+    override suspend fun getResult(): ChatResponse {
         delay(100)
-        return NextResponse(
-            game_over = true,
-            result = if (affinity >= 15) "Game Clear" else "Game Over"
+        val result = if (affinity >= 15) "Game Clear" else "Game Over"
+        return ChatResponse(
+            region = "공허",
+            character = currentChar,
+            user_input = "",
+            reply = "게임 결과: $result",
+            delta = 0,
+            narration = "모험이 끝났습니다.",
+            total_affinity = affinity,
+            conv_count = count,
+            conv_limit = limit
         )
     }
 }

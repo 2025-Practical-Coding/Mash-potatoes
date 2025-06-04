@@ -1,5 +1,7 @@
 package com.example.chatrpg.ui
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,12 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chatrpg.viewmodel.ChatViewModel
 import com.example.chatrpg.model.SenderType
 import com.example.chatrpg.model.ChatMessage
 import com.example.chatrpg.ui.screen.chat.ChatBubble
 import com.example.chatrpg.ui.screen.chat.ChatInput
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
@@ -81,7 +83,11 @@ fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
                 }
             }
 
-            ChatInput(onSend = { userInput -> viewModel.sendMessage(userInput) })
+            // 메시지 전송 시 호출되는 콜백 함수
+            ChatInput(onSend = { userInput ->
+                // 사용자가 입력한 메시지 전송
+                viewModel.sendMessage(userInput)
+            })
         }
     }
 }
