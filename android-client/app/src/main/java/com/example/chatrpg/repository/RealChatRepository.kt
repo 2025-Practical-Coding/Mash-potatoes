@@ -34,9 +34,13 @@ class RealChatRepository : ChatRepository {
         }
     }
 
-    override suspend fun nextRegion(): Any {
+    override suspend fun nextRegion(): NextRegionResponse {
         val response = RetrofitInstance.api.nextRegion()
-        return parseDynamicChatResponse(response)
+        if (response.isSuccessful) {
+            return response.body() ?: throw Exception("NextRegion response is null")
+        } else {
+            throw Exception("Failed to fetch next region: ${response.code()} - ${response.message()}")
+        }
     }
 
     override suspend fun getResult(): GameResultResponse {

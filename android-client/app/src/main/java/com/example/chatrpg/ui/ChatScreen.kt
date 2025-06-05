@@ -18,6 +18,15 @@ import com.example.chatrpg.model.SenderType
 import com.example.chatrpg.ui.screen.chat.ChatBubble
 import com.example.chatrpg.ui.screen.chat.ChatInput
 import com.example.chatrpg.viewmodel.ChatViewModel
+import androidx.compose.foundation.background
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
+
 
 @Composable
 fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
@@ -63,7 +72,11 @@ fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "${char.name} (${char.subtitle})",
+                                    text = if (char.subtitle.isNotBlank()) {
+                                        "${char.name} (${char.subtitle})"
+                                    } else {
+                                        char.name
+                                    },
                                     style = MaterialTheme.typography.titleMedium,
                                     modifier = Modifier.weight(1f)
                                 )
@@ -104,9 +117,32 @@ fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
             ) {
                 item {
                     if (opening.isNotBlank()) {
-                        Text(opening, modifier = Modifier.padding(8.dp), style = MaterialTheme.typography.bodySmall)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .background(
+                                    color = Color.Black.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = opening,
+                                color = Color.White,
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    shadow = Shadow(
+                                        color = Color.Black,
+                                        offset = Offset(2f, 2f),
+                                        blurRadius = 4f
+                                    )
+                                )
+                            )
+                        }
                     }
                 }
+
 
                 items(messages) { msg ->
                     ChatBubble(

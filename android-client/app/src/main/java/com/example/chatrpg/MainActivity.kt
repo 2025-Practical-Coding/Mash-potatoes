@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
             // 3. nextRegion 호출
             val nextRegionResponse = RetrofitInstance.api.nextRegion()
             if (nextRegionResponse.isSuccessful) {
-                val raw = nextRegionResponse.body()?.string()
+                val raw = gson.toJson(nextRegionResponse.body())
                 Log.d("API", "nextRegion 응답(JSON): $raw")
             } else {
                 Log.e("API", "nextRegion 실패: ${nextRegionResponse.code()} - ${nextRegionResponse.message()}")
