@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
             val openingResponse = RetrofitInstance.api.getOpening()
             if (openingResponse.isSuccessful) {
                 // ChatResponse 구조에 맞는 응답값을 처리
-                Log.d("API", "getOpening 응답: ${openingResponse.body()?.reply}")
+                Log.d("API", "getOpening 응답: ${openingResponse.body()?.opening}")
             } else {
                 Log.e("API", "getOpening 실패: ${openingResponse.code()} - ${openingResponse.message()}")
             }
@@ -71,15 +71,15 @@ class MainActivity : ComponentActivity() {
 
             // 6. postChat 호출 (사용자 메시지 전송)
             val chatRequest = ChatRequest(
-                user_input = "도시로 갈래",
-                slug = "npc_slug" // 이 값을 실제 캐릭터의 slug로 바꿔야 합니다.
+                user_input = "안녕 ${openingResponse.body()?.slug ?: "default-slug"} 뭐하고 있니?",
+                slug = openingResponse.body()?.slug ?: "default-slug"
             )
 
             val chatResponse = RetrofitInstance.api.postChat(chatRequest)
             if (chatResponse.isSuccessful) {
                 val response = chatResponse.body()
                 if (response != null) {
-                    Log.d("API", "postChat 응답: ${response.reply}")
+                    Log.d("API", "postChat 응답: $response")
                     // AI 응답을 UI에 반영
                 }
             } else {

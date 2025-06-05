@@ -14,7 +14,7 @@ interface RetrofitService {
 
     // Opening 정보를 요청하는 비동기 GET 호출
     @GET("/opening")
-    suspend fun getOpening(): Response<ChatResponse>
+    suspend fun getOpening(): Response<OpeningResponse>
 
     // 사용자가 보낸 메시지로 AI와의 대화를 진행하는 POST 요청
     @POST("/chat")

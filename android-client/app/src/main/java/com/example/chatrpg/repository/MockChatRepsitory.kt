@@ -17,23 +17,16 @@ class MockChatRepository : ChatRepository {
 
     private var currentChar = characters.random()
 
-    override suspend fun getOpening(): ChatResponse {
+    override suspend fun getOpening(): OpeningResponse {
         delay(200)
         currentChar = characters.random()
         affinity = 0
         count = 0
         val replyText = "공허 지역에서 ${currentChar.name}(${currentChar.subtitle})과 마주쳤습니다. 대화를 시작하세요."
         val narration = "모험을 시작해 보세요."
-        return ChatResponse(
-            region = "공허",
-            character = currentChar,
-            user_input = "",
-            reply = replyText,
-            delta = 0,
-            narration = narration,
-            total_affinity = affinity,
-            conv_count = count,
-            conv_limit = limit
+        return OpeningResponse(
+            opening = "오프닝",
+            slug = "null"
         )
     }
 

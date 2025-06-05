@@ -8,9 +8,9 @@ import retrofit2.Response
 class RealChatRepository : ChatRepository {
 
     // Opening 정보를 요청하는 메서드
-    override suspend fun getOpening(): ChatResponse {
+    override suspend fun getOpening(): OpeningResponse {
         // Retrofit을 통해 호출하고 응답을 반환
-        val response: Response<ChatResponse> = RetrofitInstance.api.getOpening()
+        val response: Response<OpeningResponse> = RetrofitInstance.api.getOpening()
         if (response.isSuccessful) {
             return response.body() ?: throw Exception("Opening data is null")
         } else {
