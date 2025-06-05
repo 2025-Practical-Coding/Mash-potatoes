@@ -1,28 +1,78 @@
-# Gradle
-.gradle/
-build/
-**/build/
-local.properties
-
-# Android Studio
-.idea/
+# ================================
+# Android Studio / Kotlin
+# ================================
 *.iml
-.DS_Store
+.gradle/
+local.properties
+.idea/
+build/
+.cxx/
+.externalNativeBuild/
+captures/
+*.apk
+*.ap_
 
-# Python
-__pycache__/
+# android-client (서브모듈) 내부도 무시
+android-client/.gradle/
+android-client/.idea/
+android-client/app/build/
+android-client/local.properties
+android-client/.cxx/
+android-client/.externalNativeBuild/
+android-client/temp_idea_backup/
+android-client/captures/
+android-client/.DS_Store
+android-client/*.iml
+
+# ================================
+# Python / FastAPI
+# ================================
 *.py[cod]
 *.egg-info/
+__pycache__/
 venv/
-.env
+.venv/
+env/
+ENV/
+backend-fastapi/__pycache__/
+backend-fastapi/venv/
+backend-fastapi/.pytest_cache/
+backend-fastapi/.mypy_cache/
+backend-fastapi/.vscode/
+backend-fastapi/.idea/
+backend-fastapi/.env
+backend-fastapi/.DS_Store
 
-# 기타
+# ================================
+# VSCode / IDE 설정
+# ================================
+.vscode/
+*.code-workspace
+
+# ================================
+# 운영체제 / 파일 시스템
+# ================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ================================
+# 백업 / 임시파일 / 로그
+# ================================
 *.log
 *.tmp
+*.bak
 *.swp
+*~
+*.sublime-workspace
+*.sublime-project
 
-# 서브모듈 디렉토리 내부 빌드 결과 무시
-android-client/.gradle/
-android-client/local.properties
-android-client/app/build/
-backend-fastapi/__pycache__/
+# ================================
+# Git 자체 메타 / 충돌 / 병합 등
+# ================================
+*.orig
+*.rej
+*.merge_backup
+*.un~

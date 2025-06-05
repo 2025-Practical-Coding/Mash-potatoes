@@ -10,6 +10,8 @@
 ChatRPGProject/
 ├── android-client/       # Kotlin 기반 안드로이드 클라이언트 (feature/android)
 ├── backend-fastapi/      # Python 기반 FastAPI 서버 (feature/llm)
+├── README.md
+├── .gitignore
 ├── .gitmodules
 └── ...
 ```
