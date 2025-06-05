@@ -17,3 +17,8 @@ data class CharacterInfo(
     val name: String,    // 캐릭터 이름
     val subtitle: String // 캐릭터 부제
 )
+
+data class OpeningResponse(
+    val opening: String,
+    val slug: String
+)

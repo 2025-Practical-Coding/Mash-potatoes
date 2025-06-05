@@ -9,6 +9,8 @@ import com.example.chatrpg.ui.ChatScreen
 import com.example.chatrpg.network.RetrofitInstance
 import com.example.chatrpg.model.*
 import kotlinx.coroutines.launch
+import com.google.gson.Gson
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,64 +26,55 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun testServerCalls() {
-        lifecycleScope.launch {
-            // 1. pingServer 호출
-            val pingResponse = RetrofitInstance.api.pingServer()
-            if (pingResponse.isSuccessful) {
-                Log.d("API", "pingServer 응답: ${pingResponse.body()}")
-            } else {
-                Log.e("API", "pingServer 실패: ${pingResponse.code()} - ${pingResponse.message()}")
-            }
+        val gson = Gson()
 
-            // 2. opening 호출 (응답을 ChatResponse로 처리)
+        lifecycleScope.launch {
+            // 1. opening 호출
             val openingResponse = RetrofitInstance.api.getOpening()
             if (openingResponse.isSuccessful) {
-                // ChatResponse 구조에 맞는 응답값을 처리
-                Log.d("API", "getOpening 응답: ${openingResponse.body()?.opening}")
+                val json = gson.toJson(openingResponse.body())
+                Log.d("API", "getOpening 응답(JSON): $json")
             } else {
                 Log.e("API", "getOpening 실패: ${openingResponse.code()} - ${openingResponse.message()}")
             }
 
-            // 3. state 호출 (응답을 ChatResponse로 처리)
+            // 2. state 호출
             val stateResponse = RetrofitInstance.api.getState()
             if (stateResponse.isSuccessful) {
-                // ChatResponse 구조에 맞는 응답값을 처리
-                Log.d("API", "getState 응답: ${stateResponse.body()?.reply}")
+                val json = gson.toJson(stateResponse.body())
+                Log.d("API", "getState 응답(JSON): $json")
             } else {
                 Log.e("API", "getState 실패: ${stateResponse.code()} - ${stateResponse.message()}")
             }
 
-            // 4. nextRegion 호출 (응답을 ChatResponse로 처리)
+            // 3. nextRegion 호출
             val nextRegionResponse = RetrofitInstance.api.nextRegion()
             if (nextRegionResponse.isSuccessful) {
-                // ChatResponse 구조에 맞는 응답값을 처리
-                Log.d("API", "nextRegion 응답: ${nextRegionResponse.body()?.reply}")
+                val raw = nextRegionResponse.body()?.string()
+                Log.d("API", "nextRegion 응답(JSON): $raw")
             } else {
                 Log.e("API", "nextRegion 실패: ${nextRegionResponse.code()} - ${nextRegionResponse.message()}")
             }
 
-            // 5. result 호출 (응답을 ChatResponse로 처리)
+            // 4. result 호출
             val resultResponse = RetrofitInstance.api.getResult()
             if (resultResponse.isSuccessful) {
-                // ChatResponse 구조에 맞는 응답값을 처리
-                Log.d("API", "getResult 응답: ${resultResponse.body()?.reply}")
+                val json = gson.toJson(resultResponse.body())
+                Log.d("API", "getResult 응답(JSON): $json")
             } else {
                 Log.e("API", "getResult 실패: ${resultResponse.code()} - ${resultResponse.message()}")
             }
 
-            // 6. postChat 호출 (사용자 메시지 전송)
+            // 5. postChat 호출
+            val slug = openingResponse.body()?.slug ?: "default-slug"
             val chatRequest = ChatRequest(
-                user_input = "안녕 ${openingResponse.body()?.slug ?: "default-slug"} 뭐하고 있니?",
-                slug = openingResponse.body()?.slug ?: "default-slug"
+                user_input = "안녕 $slug 뭐하고 있니?",
+                slug = slug
             )
-
             val chatResponse = RetrofitInstance.api.postChat(chatRequest)
             if (chatResponse.isSuccessful) {
-                val response = chatResponse.body()
-                if (response != null) {
-                    Log.d("API", "postChat 응답: $response")
-                    // AI 응답을 UI에 반영
-                }
+                val raw = chatResponse.body()?.string()
+                Log.d("API", "postChat 응답(JSON): $raw")
             } else {
                 Log.e("API", "postChat 실패: ${chatResponse.code()} - ${chatResponse.message()}")
             }
