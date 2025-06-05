@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         }
 
         // 서버에 여러 API 호출을 보내서 연결 확인
-        testServerCalls()
+//        testServerCalls()
     }
 
     private fun testServerCalls() {

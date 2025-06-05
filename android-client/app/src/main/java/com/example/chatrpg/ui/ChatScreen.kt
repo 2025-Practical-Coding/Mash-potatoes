@@ -4,9 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -41,17 +44,53 @@ fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
         )
 
         Column(modifier = Modifier.fillMaxSize()) {
-            currentChar?.let {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Text("${it.name} (${it.subtitle})", style = MaterialTheme.typography.titleMedium)
-                    LinearProgressIndicator(
-                        progress = affinity / convLimit.toFloat().coerceAtLeast(1f),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp)
-                            .padding(top = 4.dp)
-                    )
-                    Text("대화 횟수: $convCount / $convLimit", style = MaterialTheme.typography.labelSmall)
+            currentChar?.let { char ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp)
+                ) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "${char.name} (${char.subtitle})",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Text(
+                                    text = "호감도: $affinity",
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            LinearProgressIndicator(
+                                progress = affinity / convLimit.toFloat().coerceAtLeast(1f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(6.dp)
+                                    .clip(RoundedCornerShape(3.dp)),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            Text(
+                                text = "대화 횟수: $convCount / $convLimit",
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
                 }
             }
 

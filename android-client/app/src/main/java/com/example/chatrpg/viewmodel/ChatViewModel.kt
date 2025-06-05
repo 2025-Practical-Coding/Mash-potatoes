@@ -51,7 +51,8 @@ class ChatViewModel : ViewModel() {
                     _openingMessage.value = "Opening API 실패: ${response.code()}"
                 }
             } catch (e: Exception) {
-                _openingMessage.value = "오류: ${e.message}"
+                _openingMessage.value = "서버와의 연결에 실패했습니다."
+                _currentCharacter.value = null
             }
         }
     }
@@ -68,6 +69,7 @@ class ChatViewModel : ViewModel() {
                 val response: Response<ResponseBody> = RetrofitInstance.api.postChat(
                     ChatRequest(slug = slug, user_input = userInput)
                 )
+
                 if (!response.isSuccessful) {
                     _chatMessages.value += ChatMessage(
                         sender = SenderType.AI,
@@ -83,14 +85,32 @@ class ChatViewModel : ViewModel() {
                 when {
                     element.isJsonArray -> {
                         val list = gson.fromJson(raw, Array<ChatResponse>::class.java).toList()
-                        list.forEach {
+
+                        // 1. 첫 메시지: 일반 대화
+                        list.getOrNull(0)?.let {
                             _chatMessages.value += ChatMessage(
                                 sender = SenderType.AI,
                                 message = it.reply,
-                                aiName = it.character.slug,
+                                aiName = it.character.name,
                                 aiSlug = it.character.slug
                             )
                         }
+
+                        // 2. 두 번째 메시지: 작별 멘트
+                        list.getOrNull(1)?.let {
+                            _chatMessages.value += ChatMessage(
+                                sender = SenderType.AI,
+                                message = it.reply,
+                                aiName = it.character.name,
+                                aiSlug = it.character.slug,
+                                isGoodbye = true // <-- ChatMessage에 필드가 있다면 사용
+                            )
+
+                            // 🎯 작별 멘트 후 다음 지역으로 이동
+                            loadNextRegion()
+                        }
+
+                        // 마지막 응답 기준으로 상태 갱신
                         list.lastOrNull()?.let {
                             _affinity.value = it.total_affinity
                             _convCount.value = it.conv_count
@@ -100,6 +120,7 @@ class ChatViewModel : ViewModel() {
 
                     element.isJsonObject -> {
                         val obj = element.asJsonObject
+
                         if (obj.has("game_over")) {
                             val result = gson.fromJson(raw, GameResultResponse::class.java)
                             _chatMessages.value += ChatMessage(
@@ -112,7 +133,7 @@ class ChatViewModel : ViewModel() {
                             _chatMessages.value += ChatMessage(
                                 sender = SenderType.AI,
                                 message = res.reply,
-                                aiName = res.character.slug,
+                                aiName = res.character.name,
                                 aiSlug = res.character.slug
                             )
                             _affinity.value = res.total_affinity
@@ -130,6 +151,26 @@ class ChatViewModel : ViewModel() {
             }
         }
     }
+
+    fun loadNextRegion() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.api.nextRegion()
+                if (response.isSuccessful) {
+                    val regionName = response.body()?.region ?: "알 수 없음"
+                    val characterSlugs = response.body()?.characters ?: emptyList()
+
+                    _selectedRegion.value = regionName
+                    // 필요 시 characterSlugs로도 추가 처리 가능
+                } else {
+                    _openingMessage.value = "지역 이동 실패: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                _openingMessage.value = "지역 전환 실패: ${e.message}"
+            }
+        }
+    }
+
 
     fun setCharacter(character: CharacterInfo) {
         _currentCharacter.value = character

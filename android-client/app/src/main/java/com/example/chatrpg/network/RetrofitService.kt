@@ -36,7 +36,7 @@ interface RetrofitService {
      * 응답: ChatResponse 또는 GameResultResponse 등의 유동적 구조
      */
     @POST("/next")
-    suspend fun nextRegion(): Response<ResponseBody>
+    suspend fun nextRegion(): Response<NextRegionResponse>
 
     /**
      * 게임 결과 요청

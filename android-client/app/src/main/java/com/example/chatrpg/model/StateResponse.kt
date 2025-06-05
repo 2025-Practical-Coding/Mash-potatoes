@@ -13,3 +13,8 @@ data class CurrentCharacterInfo(
     val subtitle: String,
     val affinity: Int
 )
+
+data class NextRegionResponse(
+    val region: String,
+    val characters: List<String>
+)
