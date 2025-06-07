@@ -77,4 +77,14 @@ def return_enemies(line):
         return []
     items = line.split(':', 1)[-1]
     return [x.strip() for x in items.split(',') if x.strip() and "없음" not in x]
-    
+
+def parse_response(r):
+    lines = [l.strip() for l in resp.split('\n')]
+    friends = []
+    enemies = []
+    for line in lines:
+        if line.startswith("친구"):
+            friends = return_friends(line)
+        if line.startswith("적"):
+            enemies = return_enemies(line)
+    return friends, enemies
