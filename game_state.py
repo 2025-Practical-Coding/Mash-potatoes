@@ -41,7 +41,7 @@ class GameState:
         self.affinity_threshold = 20
         self.ally_threshold = 11
         self.relationship_threshold = 10
-        self.total_relationship = 20
+        self.total_relationship = 15
 
     @classmethod
     def load_from_file(cls, path1: str, path2: str) -> 'GameState':
@@ -85,6 +85,8 @@ class GameState:
             for char in self.allies:
                 if name in char.relationships['enemies']:
                     self.total_relationship -= 1
+                if name in char.relationships['friends']:
+                    self.total_relationship += 1
         self.current_round += 1
 
     def is_region_complete(self) -> bool:
