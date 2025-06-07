@@ -34,4 +34,47 @@ def add_log(msg):
     # 전역 변수 LOG_PATH에 정의된 경로에 로그 메시지를 한 줄 추가
     with open(LOG_PATH, 'a', encoding='utf-8') as f:
         f.write(msg + "\n")
-        
+
+#AI 연동 GPT-3.5-Turbo
+# 환경 변수로 키 입력
+def api_key():
+    return os.getenv("OPENAI_API_KEY")
+
+#API 호출
+def api(prompt):
+    r = openai.chat.completions.create(
+        model=MODEL,
+        msg = [{"role":"user", "content":prompt}],
+        maxTokens = MAX_TOKENS,
+        temperature = TEMPERATURE
+    )
+    return r.choices[0].msg.content
+
+#프롬프트 엔지니어링
+def prompt_engin(champ, text):
+    prompt = (
+        f"아래는 롤 챔피언({champ})의 관계에 대한 설명이야.\n"
+        f"이 텍스트에서 '{champ}'의 '친구'와 '적'을 각각 , 로 구분해서 한글 이름만 뽑아줘.\n"
+        "- 친구 : 긍정적/호의적/신뢰/동맹 등\n"
+        "- 적 : 적대적/원수/갈등/반목/숙적 등\n"
+        "형식 예시:\n"
+        "친구 : 친구1, 친구2, ...\n"
+        "적 : 적1, 적2, ...\n\n"
+        "텍스트:\n"
+        f"{text}\n"
+    )
+    return prompt
+
+# 결과 반환
+def return_friends(line):
+    if not line.startswith("친구"):
+        return []
+    items = line.split(':', 1)[-1]
+    return [x.strip() for x in items.split(',') if x.strip() and "없음" not in x]
+
+def return_enemies(line):
+    if not line.startswith("적"):
+        return []
+    items = line.split(':', 1)[-1]
+    return [x.strip() for x in items.split(',') if x.strip() and "없음" not in x]
+    
