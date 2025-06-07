@@ -206,46 +206,50 @@ def get_opening(gs: GameState, character: Character) -> str:
     return f"{region} 지역에서 {character.name}({character.subtitle})과(와) 마주쳤습니다. {first_sentence}."
 
 def ending(gs: GameState):
+    # 동료 수가 충분한지 확인
     if len(gs.allies) < gs.ally_threshold:
         msg = (
             "당신은 리그 오브 레전드 세계관에 정통한 내러티브 작가입니다.\n"
-            "한 유저가 동료를 영입해 바론을 잡으려 했습니다.\n"
-            "하지만 충분한 수의 동료를 영입하지 못한 유저는 바론을 잡는 것에 실패했습니다.\n"
+            "한 유저가 동료를 영입해 바론을 잡으려 했지만 충분한 수의 동료를 영입하지 못한 유저는 바론을 잡는 것에 실패했습니다.\n"
             "이에 맞춰서 바론 도전 결과와 그 이후 마무리 텍스트트를 생성하세요.\n"
             "아래 **반드시** JSON 코드블록(Triple backticks)으로만 응답하세요:\n"
             "```json\n"
             "{\n"
             "  \"narration\": \"<게임 결과 설명 텍스트>\"\n"
+            "  \"result\": \"Fail\""
             "}```\n"
         )
+    # 동료간 관계 확인인
     elif gs.relationship < gs.relationship_threshold:
         msg = (
             "당신은 리그 오브 레전드 세계관에 정통한 내러티브 작가입니다.\n"
-            "한 유저가 동료를 영입해 바론을 잡으려 했습니다.\n"
-            "충분한 수의 동료를 영입했지만 동료들의 연계가 좋지않아 잡는 것에 실패했습니다.\n"
-            "이에 맞춰서 바론 도전 결과와 그 이후 마무리 텍스트트를 생성하세요.\n"
+            "한 유저가 동료를 영입해 바론을 잡으려 했고 충분한 수의 동료를 영입했지만 몇몇 동료들의 연계가 좋지않아 잡는 것에 실패했습니다.\n"
+            "이에 맞춰서 바론 도전 결과와 그 이후 마무리 텍스트를 생성하세요.\n"
             "동료들 간의 서로 사이가 좋지 않은 관계가 있다는 것을 강조하세요.\n"
             "아래 **반드시** JSON 코드블록(Triple backticks)으로만 응답하세요:\n"
             "```json\n"
             "{\n"
             "  \"narration\": \"<게임 결과 설명 텍스트>\"\n"
+            "  \"result\": \"Fail\""
             "}```\n"
         )
     else:
         msg = (
             "당신은 리그 오브 레전드 세계관에 정통한 내러티브 작가입니다.\n"
-            "한 유저가 동료를 영입해 바론을 잡으려 했습니다.\n"
-            "충분한 수의 동료를 영입했고 동료들의 연계가 훌륭하여 드디어 바론을 잡는 것에 성공했습니다.\n"
+            "한 유저가 동료를 영입해 바론을 잡으려 충분한 수의 동료를 영입했고 동료들의 연계가 훌륭하여 드디어 바론을 잡는 것에 성공했습니다.\n"
             "이에 맞춰서 바론 도전 결과와 그 이후 마무리 텍스트트를 생성하세요.\n"
             "아래 **반드시** JSON 코드블록(Triple backticks)으로만 응답하세요:\n"
             "```json\n"
             "{\n"
             "  \"narration\": \"<게임 결과 설명 텍스트>\"\n"
+            "  \"result\": \"Success\""
             "}```\n"
         )
     resp = client.chat.completions.create(
         model="gpt-3.5-turbo",
-        messages=msg,
+        messages=[
+        {"role": "system", "content": msg},
+    ],
         max_tokens=350
     )
     text = resp.choices[0].message.content.strip()
@@ -263,6 +267,7 @@ def ending(gs: GameState):
             return {
                 "game_over": True,
                 "narration": "",             # 별도 내러티브 없음
+                "result": "",
                 "relationship": gs.relationship,
                 "alliies": len(gs.allies)
             }
@@ -272,6 +277,7 @@ def ending(gs: GameState):
     return {
         "game_over": True,
         "narration": narration,
+        "result": "Success",
         "relationship": gs.relationship,
         "alliies": len(gs.allies)
     }
