@@ -11,7 +11,7 @@ load_dotenv()
 # FastAPI app
 app = FastAPI(title="RPG Chat Game API")
 
-GS = GameState.load_from_file("Data.json")
+GS = GameState.load_from_file("Data.json", "extract_relationchip.json")
 random.shuffle(GS.regions)
 GS.next_region()
 
@@ -73,7 +73,7 @@ def post_chat(req: ChatRequest = Body(...)):
         raise HTTPException(status_code=400, detail="This is not a character you are currently talking to.")
     # perform chat
     try:
-        response = chat_with_character(GS, req.slug, req.user_input)
+        response = chat_with_character(GS, req.slug, req.name, req.user_input)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     char = GS.current_character

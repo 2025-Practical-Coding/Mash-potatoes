@@ -6,6 +6,11 @@ from typing import List, Dict, Optional
 from numpy import character
 
 @dataclass
+class Relationship:
+    friend: List[str]
+    enemy: List[str]
+
+@dataclass
 class Character:
     name: str
     slug: str
@@ -13,6 +18,7 @@ class Character:
     story: str
     affinity: int = 0
     is_ally: bool = False
+    relationships: Dict[str, Relationship] = None
 
 @dataclass
 class Region:
@@ -35,14 +41,21 @@ class GameState:
         self.affinity_threshold = 20
         self.ally_threshold = 11
         self.relationship_threshold = 10
-        self.relationship = 0
+        self.total_relationship = 20
 
     @classmethod
-    def load_from_file(cls, path: str) -> 'GameState':
-        with open(path, encoding='utf-8') as f:
+    def load_from_file(cls, path1: str, path2: str) -> 'GameState':
+        with open(path1, encoding='utf-8') as f:
             data = json.load(f)
+        with open(path2, encoding='utf-8') as ext_f:
+            ext_data = json.load(ext_f)
+        relations = {name: Relationship(info['friends'], info['enemies']) for name, info in ext_data.items()}
         regions = [Region(name, [Character(**c) for c in chars]) for name, chars in data.items()]
-        return cls(regions)
+        for region in regions:
+            for char in region.characters:
+                if char.name in relations:
+                    char.relationships = relations[char.name]
+        return cls(region)
 
     def next_region(self) -> bool:
         self.region_index += 1
@@ -56,7 +69,7 @@ class GameState:
         self.current_character = self.chosen[0]
         return True
 
-    def talk(self, slug: str, affinity_change: int = 0) -> None:
+    def talk(self, slug: str, name: str, affinity_change: int = 0) -> None:
         if not self.current_region or slug not in self.conv_counts:
             return
         if self.conv_counts[slug] >= self.conv_limit:
@@ -69,6 +82,9 @@ class GameState:
         if char.affinity >= self.affinity_threshold and not char.is_ally:
             char.is_ally = True
             self.allies.append(char)
+            for char in self.allies:
+                if name in char.relationships['enemies']:
+                    self.total_relationship -= 1
         self.current_round += 1
 
     def is_region_complete(self) -> bool:

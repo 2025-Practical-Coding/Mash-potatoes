@@ -131,7 +131,7 @@ def say_good_bye(gs: GameState, character: Character) -> list[dict]:
     }
 
 # def chat_with_character(gs: GameState, slug: str, user_input: str, model: str = "gpt-3.5-turbo") -> tuple[str,int,str]:
-def chat_with_character(gs: GameState, slug: str, user_input: str) -> dict:
+def chat_with_character(gs: GameState, slug: str, name: str, user_input: str) -> dict:
     """
     1) 현재 선택된 지역에서 slug에 해당하는 캐릭터 조회
     2) LLM 호출로 JSON 응답 생성 (reply, delta)
@@ -180,7 +180,7 @@ def chat_with_character(gs: GameState, slug: str, user_input: str) -> dict:
     delta = int(data.get("delta", 0))
     narration = data.get("narration", "")
 
-    gs.talk(slug, affinity_change=delta)
+    gs.talk(slug, name, affinity_change=delta)
 
     return {
         "region": gs.current_region.name,
@@ -220,7 +220,7 @@ def ending(gs: GameState):
             "}```\n"
         )
     # 동료간 관계 확인인
-    elif gs.relationship < gs.relationship_threshold:
+    elif gs.total_relationship < gs.relationship_threshold:
         msg = (
             "당신은 리그 오브 레전드 세계관에 정통한 내러티브 작가입니다.\n"
             "한 유저가 동료를 영입해 바론을 잡으려 했고 충분한 수의 동료를 영입했지만 몇몇 동료들의 연계가 좋지않아 잡는 것에 실패했습니다.\n"
