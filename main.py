@@ -4,7 +4,7 @@ import random
 import os
 from dotenv import load_dotenv
 from game_state import GameState, Character, Region
-from chat_interaction import chat_with_character, get_opening, say_good_bye
+from chat_interaction import chat_with_character, ending, get_opening, say_good_bye
 
 load_dotenv()
 
@@ -111,7 +111,7 @@ def get_result():
     """Return final game result"""
     if not GS.is_game_over():
         return {"game_over": False}
-    return {"game_over": True, "result": GS.result()}
+    return ending()
 
 
 '''

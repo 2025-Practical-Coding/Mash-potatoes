@@ -34,6 +34,8 @@ class GameState:
         self.conv_limit = 7
         self.affinity_threshold = 20
         self.ally_threshold = 11
+        self.relationship_threshold = 10
+        self.relationship = 0
 
     @classmethod
     def load_from_file(cls, path: str) -> 'GameState':
