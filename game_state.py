@@ -55,7 +55,9 @@ class GameState:
             for char in region.characters:
                 if char.name in relations:
                     char.relationships = relations[char.name]
-        return cls(region)
+        # return cls(region)
+        return cls(regions)
+
 
     def next_region(self) -> bool:
         self.region_index += 1

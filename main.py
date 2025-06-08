@@ -17,6 +17,7 @@ GS.next_region()
 
 class ChatRequest(BaseModel):
     slug: str
+    name: str
     user_input: str
 
 #현재 상태를 출력하는 api
@@ -58,14 +59,50 @@ def get_opening_route():
     region = GS.current_region
     if not region:
         raise HTTPException(status_code=404, detail="Game over")
-    return {"opening": get_opening(GS, GS.current_character), "slug": GS.current_character.slug}
+    return {"opening": get_opening(GS, GS.current_character), 
+            "slug": GS.current_character.slug
+        }
 
 # 사용자가 입력한 대화내용을 보내는 api
 # 남아있는 대화 횟수, 호감도, 호감도 상태 메세지 출력함
+# @app.post("/chat")
+# def post_chat(req: ChatRequest = Body(...)):
+#     print(f"▶ incoming slug={req.slug!r}, current slug={GS.current_character.slug!r}")
+    
+#     """Handle a chat turn, return payload for frontend"""
+#     # ensure current region
+#     if not GS.current_region:
+#         raise HTTPException(status_code=404, detail="Game over")
+#     # find character
+#     if req.slug != GS.current_character.slug:
+#         raise HTTPException(status_code=400,
+#             detail=f"Slug mismatch: got {req.slug}, expected {GS.current_character.slug}")
+#     # perform chat
+#     try:
+#         response = chat_with_character(GS, req.slug, req.name, req.user_input)
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+#     char = GS.current_character
+
+#     conv_done = GS.conv_counts[char.slug] >= GS.conv_limit
+#     affinity_done = char.affinity >= GS.affinity_threshold
+
+#     if conv_done or affinity_done:
+#         response_2 = say_good_bye(GS, GS.current_character)
+#         next_char = next((c for c in GS.chosen if c.slug != char.slug), None)
+#         if not GS.is_region_complete():
+#             GS.current_character = next_char
+#         else:
+#             if not GS.next_region():
+#                 return {"game_over": True, "result": GS.result()}
+#         return [response, response_2]
+#     return response
+
 @app.post("/chat")
 def post_chat(req: ChatRequest = Body(...)):
     """Handle a chat turn, return payload for frontend"""
     # ensure current region
+    name = GS.current_character.name
     if not GS.current_region:
         raise HTTPException(status_code=404, detail="Game over")
     # find character
@@ -73,7 +110,7 @@ def post_chat(req: ChatRequest = Body(...)):
         raise HTTPException(status_code=400, detail="This is not a character you are currently talking to.")
     # perform chat
     try:
-        response = chat_with_character(GS, req.slug, req.name, req.user_input)
+        response = chat_with_character(GS, req.slug, name, req.user_input)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     char = GS.current_character
@@ -91,7 +128,6 @@ def post_chat(req: ChatRequest = Body(...)):
                 return {"game_over": True, "result": GS.result()}
         return [response, response_2]
     return response
-
 # 로직 변경으로 chat과 결합합
 # 7,8회로 1캐릭터와 대화가 종료되었을 때 다른 캐릭터와 대화하게끔 해야함.
 # 만약 2명 모두와 대화했을 경우에는 랜덤 지역으로 나오게끔
