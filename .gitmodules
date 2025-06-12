@@ -1,0 +1,8 @@
+[submodule "android-client"]
+	path = android-client
+	url = https://github.com/2025-Practical-Coding/android-client.git
+	branch = last/android
+[submodule "backend-fastapi"]
+	path = backend-fastapi
+	url = https://github.com/2025-Practical-Coding/backend-fastapi.git
+	branch = last/llm
