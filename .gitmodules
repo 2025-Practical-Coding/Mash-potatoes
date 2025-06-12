@@ -2,7 +2,7 @@
 	path = android-client
 	url = https://github.com/2025-Practical-Coding/android-client.git
 	branch = feature/android
+
 [submodule "backend-fastapi"]
 	path = backend-fastapi
 	url = https://github.com/2025-Practical-Coding/backend-fastapi.git
-	branch = feature/llm
